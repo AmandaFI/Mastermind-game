@@ -22,11 +22,11 @@ int* gerar_sequencia(int tam_sequencia){
     }
 
     //DEBUG MODE - MOSTRAR SEQUENCIA ESCOLHIDA
-    // printf("Senha\n");
-    // for (int i =0; i<tam_sequencia; i++){
-    //     printf("%d", sequencia[i]);
-    // }
-    // printf("\n");
+    printf("Senha\n");
+    for (int i =0; i<tam_sequencia; i++){
+        printf("%d", sequencia[i]);
+    }
+    printf("\n");
 
     return sequencia;
 }
@@ -197,20 +197,20 @@ int main(){
             
 
             //enviando messagem de boas vindas e instruçaõ do jogo ao cliente
-            send(new_socket, "-\nBem vindo ao Lockpick!\nUm programdor distraído esqueceu a chave de acesso de sua carteira de criptomoedas. Essa informação veio a público e agora todos podem tentar adivinhá-la. A carteira permite que você realiza 12 tentativas para tentar acertar uma senha de 4 dígitos composta pelos valores de 0 a 9. A cada tentativa uma pista lhe será fornecida. Após 12 tentativas a carteira será bloqueada e todo seu conteúdo será perdido para sempre. Vai aceitar o desafio e tentar acertar a chave de acesso ? Digite 'start' para iniciar ou 'quit' para sair.\n", 565, 0);
+            send(new_socket, "-\nBem vindo ao Lockpick!\nUm programdor distraído esqueceu a chave de acesso de sua carteira de criptomoedas. Essa informação veio a público e agora todos podem tentar adivinhá-la.\nA carteira permite que você realize 12 tentativas para tentar acertar uma senha de 4 dígitos composta pelos valores de 0 a 9.\nA cada tentativa, uma pista lhe será fornecida. Após 12 tentativas a carteira será bloqueada e todo seu conteúdo será perdido para sempre. Vai aceitar o desafio e tentar acertar a chave de acesso ?\nDigite 'start' para iniciar ou 'quit' para sair.\n", 565, 0);
 
             //while força o usuario a iniciar ou encerrar o jogo, qualquer outro comando será invalido
             while(flag != 1){
                 recv(new_socket, buffer, 300, 0);
 
                 //se a mesnagem recebida for igual a quit\n o programa é encerrado
-                if(!strcmp(buffer, "quit\n")){            //o /r é necessário para testar pelo telnet, talvez por clienete possa ser somente /n
-                    send(new_socket, "-Jogo encerrado.\n", 17, 0);
+                if(!strcmp(buffer, "quit")){            //o /r é necessário para testar pelo telnet, talvez por clienete possa ser somente /n
+                    send(new_socket, ".Jogo encerrado.\n", 17, 0);
                     flag = 1;
-                    conexao = 1; 
+                    conexao = 1;
                 }
                 //inicio do jogo
-                else if (!strcmp(buffer, "start\n")){
+                else if (!strcmp(buffer, "start")){
                     
                     //definindo sequencia a ser adivinhada
                     sequencia = gerar_sequencia(tam);
@@ -223,7 +223,7 @@ int main(){
                         if (tentativa >= max_tentativa){
                             conexao = 1;
                             flag = 1;
-                            send(new_socket, "-Tentativas esgotadas. A carteira foi bloqueada para sempre.\n", 61, 0);
+                            send(new_socket, ".Tentativas esgotadas. A carteira foi bloqueada para sempre.\n", 61, 0);
                         }
                         else{
 
@@ -232,8 +232,8 @@ int main(){
                             recv(new_socket, buffer, 300, 0);
                             
                             //se a mesnagem recebida for igual a quit\n o programa é encerrado
-                            if(!strcmp(buffer, "quit\n")){
-                                send(new_socket, "-Jogo encerrado.\n", 17, 0);
+                            if(!strcmp(buffer, "quit")){
+                                send(new_socket, ".Jogo encerrado.\n", 17, 0);
                                 flag = 1;
                                 conexao = 1;
                             }
@@ -244,6 +244,7 @@ int main(){
                                 recv_count = 0;
                                 for (int i = 0; i< 300; i++){
                                     if (buffer[i] == '\0'){
+
                                         break;
                                     }
                                     else{
@@ -256,7 +257,7 @@ int main(){
                                 }
 
                                 //verificar se valores da sequencia recebida estão entre 0 e 9.
-                                val_tentativa = validar_tentativa(guess, recv_count - 1);
+                                val_tentativa = validar_tentativa(guess, recv_count);
 
                                 if(val_tentativa == 0){
                                     send(new_socket, "-Todos os valores da sequência devem ser números de 0 a 9. Tente Novamente.\n", 78, 0);
@@ -264,7 +265,7 @@ int main(){
                                 else{
                                     
                                     //validar e analisar tentativa
-                                    char* validacao = analisar_tentativa(guess, recv_count - 1, sequencia, tam);
+                                    char* validacao = analisar_tentativa(guess, recv_count, sequencia, tam);
 
                                     //tentativa invalida
                                     if (validacao[0] == '-'){
@@ -273,7 +274,7 @@ int main(){
                                     }
                                     //usuario acertou a sequencia
                                     else if(validacao[0] == char_tam){
-                                        send(new_socket, "-Parabéns, você desbloqueou a carteira!\n", 42, 0);
+                                        send(new_socket, ".Parabéns, você desbloqueou a carteira!\n", 42, 0);
                                         conexao = 1;
                                     }
                                     //enviando analise/feedback da tentativa ao cliente
