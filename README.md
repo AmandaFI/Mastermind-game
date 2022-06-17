@@ -10,7 +10,8 @@ Respostas do servidor ao cliente:
     - index[2] = quantidade incorreta
     - index[3] = \n
     
---> se for uma mesnagem qualquer, o index[0] será o caracter '-'
+--> Flags:
+'-' = mensagem comum, somente printar
+'.' = mesngem de encerramnteo de conexao, printar e encerrar conexao
+nenhum dos dois = pistas sobre a tentativa do ususario, printar em cores diferentes 
 
-
-OBS: Tamanho máximo de uma mesnagem enviada pelo servidor é 565 caracteres.
