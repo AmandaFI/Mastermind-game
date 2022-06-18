@@ -11,18 +11,19 @@
 #include <string.h>
 #include <time.h>
 
-//gera uma sequencia de tam_sequencia digitos
+//Função que gera uma sequencia aleatória contendo tam_sequencia digitos
 int* gerar_sequencia(int tam_sequencia){
     
     int* sequencia = malloc(sizeof(int)* tam_sequencia);
+
     srand((unsigned)time(NULL) );
     for (int i=0; i < tam_sequencia; i++){
 
         sequencia[i] = (rand() %10);
     }
 
-    //DEBUG MODE - MOSTRAR SEQUENCIA ESCOLHIDA
-    printf("Senha\n");
+    //DEBUG MODE - MOSTRAR SEQUENCIA/SENHA ESCOLHIDA
+    printf("Senha:\n");
     for (int i =0; i<tam_sequencia; i++){
         printf("%d", sequencia[i]);
     }
@@ -31,23 +32,87 @@ int* gerar_sequencia(int tam_sequencia){
     return sequencia;
 }
 
-//valida a tentativa do usuario, retornanod um array contendo quantos acertos, acertos parciais e erros o usuario cometeu
-char* analisar_tentativa(char* guess, int tam_guess, int* sequencia, int tam_sequencia){
 
-    //DEBUG MODE
-    //printf("-------%d====%d-------\n", tam_guess, tam_sequencia);
+//Função que gera um array informando a quantidade de vezes que cada digito aparece na senha
+//se houver repetições o indice 0 do array valerá 1, caso contrário valerá 0
+//a partir do indice 0, segue-se cada valor acompanhado pela quantidade de vezes que aparece na senha
+//para valores que se repetem, a informação válida de quantidade é a que acompanha a priemira vez que o valor aparece no array
+//Ex: senha = 7583, output da função = [0, 7, 1, 5, 1, 8, 1, 3, 1] --> nesse caso não há repetições e os números 7, 5, 8 e 3 aparecem somente uma vez
+//Ex: senha = 7573, output da funcao = [1, 7, 2, 5, 1, 7, 1, 3, 1] --> nesse caso o valor 7 aparece 2 vezes e os demais apenas 1 vez, a informação de 
+//quantidade válida do valor 7 é 2 pois é a que acompanha o priemiro registro do valor no array
+int* gerar_meta_sequencia(int tam_sequencia, int* sequencia){
+
+    //tamanho do array de output
+    int meta_size = tam_sequencia * 2 + 1;
+
+    int* copy_sequencia = malloc(sizeof(int)* tam_sequencia);
+    int* meta_sequencia = malloc(sizeof(int)* meta_size);
+
+    //inicia-se considerando que não existem repetições na senha
+    meta_sequencia[0] = 0;
+    
+    for (int i = 1; i<meta_size; i++){
+        if(i%2 == 0){
+            meta_sequencia[i] = 1;
+        }
+        else{
+            meta_sequencia[i] = -1;
+        }
+    }
+
+    for (int i=0; i < tam_sequencia; i++){
+        copy_sequencia[i] = sequencia[i];
+    }
+
+    //realizando a contagem de vezes que um número aparece na senha
+    for(int i = 0; i < tam_sequencia; i++){
+        meta_sequencia[i + i + 1] = sequencia[i];
+        for(int j = i + 1; j < tam_sequencia; j++){
+            if (copy_sequencia[j] != -1){
+                
+                //repetição identificada
+                if (sequencia[i] == copy_sequencia[j]){
+                    meta_sequencia[0] = 1;
+                    meta_sequencia[i + i + 2] = meta_sequencia[i + i + 2] + 1;
+                    copy_sequencia[j] = -1;
+                }
+            }
+        }
+    }
+
+    //DEBUG MODE - MOSTRAR DADOS SOBRE A SEQUENCIA ESCOLHIDA
+    // printf("Meta Senha:\n");
+    // for (int i =0; i<meta_size; i++){
+    //     printf("%d", meta_sequencia[i]);
+    // }
+    // printf("\n");
+
+    return meta_sequencia;
+
+}
+
+
+//Funçaõ que valida a tentativa do usuario, retornando um array contendo quantos acertos, acertos parciais e erros o usuario cometeu
+char* analisar_tentativa(char* guess, int tam_guess, int* sequencia, int tam_sequencia, int* meta_sequencia){
 
     char* validacao = malloc(sizeof(char)* 4);
+    int meta_tam = 2 * tam_sequencia + 1;
+    int* meta_sequencia_copy = malloc(sizeof(int)* meta_tam);
 
     for (int i = 0; i < 3; i++){
         validacao[i] = '-';
     }
+    for (int i = 0; i < meta_tam; i++){
+        meta_sequencia_copy[i] = meta_sequencia[i];
+    }
 
     validacao[3] = '\n';
 
-    int tentativa = 0;
+    //quantidade de valores corretos nas poisções corretas
     int certo_certo = 0;
+    //quantidade de valores corretos em posições incorretas
     int certo_errado = 0;
+    //quantidade de valores que não aparecem na senha, ou seja, incorretos
     int errado = 0;
    
     //input do usuario tem mais digitos que a sequencia a ser adivinhada, invalido
@@ -56,38 +121,62 @@ char* analisar_tentativa(char* guess, int tam_guess, int* sequencia, int tam_seq
         return validacao;
     }
     else{
-        
-        for(int v = 0; v < (tam_sequencia); v++)
-        {
-            int resposta = 0;
-            for (int r = 0; r < (tam_sequencia);r++){
-                
-                //digito presente na sequencia a ser adivinhada
-                if ((guess[v] - '0') == sequencia[r]){
-                    resposta = 1;
+
+        //procurando por valores corretos nas posições corretas
+        for (int i = 0; i < tam_sequencia; i++){
+            if ((guess[i] - '0') == sequencia[i]){
+                certo_certo++;
+                //atualizando a quantidade de vezes que ele apareceu na tentativa em relaçaõ a quantidade de vezes que ele existe na senha para que o valor
+                //não seja contando como certo_certo e como certo_errado. Deesa forma, se o numero 3 por exemplo aparecer apenas 1 vez na senha e a tentativa
+                //do usuário for igual a 3333, o feedback será 103 ao inves de 130 pois o numero existe apenas 1 vez na senha e assim as outras vezes que
+                //ele apareceu na tentativa do usuario constituem valores errados
+                for(int m = 1; m < meta_tam - 1; m = m + 2){
+                    if ((guess[i] - '0') == meta_sequencia_copy[m]){
+                        if(meta_sequencia_copy[m + 1] > 0){
+                            meta_sequencia_copy[m + 1] = meta_sequencia_copy[m + 1] - 1;
+                            guess[i] = -1 + '0';
+                        }
+                        break;
+                    }
                 }
             }
-            //numero presente na sequenica e na posicao correta
-            if ((guess[v] - '0') == sequencia[v]){
-                certo_certo++;
-            }
-            //numero somente presente na sequencia
-            else if (resposta == 1){
-                certo_errado++;
-            }
-            //numero não faz parte da sequencia
-            else{
-                errado++;
-            }    
         }
+
+        //procurando por valores corretos em posições incorretas
+        for(int i = 0; i < tam_sequencia; i++){
+            if((guess[i]) != -1 + '0'){
+                for (int j = 0; j < tam_sequencia; j++){
+                    if((guess[i] - '0') == sequencia[j]){
+                        //mesma funcionalidade de atualizaçõ da quantidade de vezes que ele apareceu na tentativa em relaçaõ a quantidade de vezes que ele 
+                        //existe na senha documentada acima
+                        for(int m = 1; m < meta_tam - 1; m = m + 2){
+                            if ((guess[i] - '0') == meta_sequencia_copy[m]){
+                                if(meta_sequencia_copy[m + 1] > 0){
+                                    meta_sequencia_copy[m + 1] = meta_sequencia_copy[m + 1] - 1;
+                                    guess[i] = -1 + '0';
+                                    certo_errado++;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        //os digitos que não estiverem corretos ou parcialmente corretos só podem estar errados e não aparecem na senha
+        errado = tam_sequencia - (certo_certo + certo_errado);
+        
     }
+    //retornando feedback da tentativa do usuario em um array do tipo char
     validacao[0] = certo_certo + '0';
     validacao[1] = certo_errado + '0';
     validacao[2] = errado + '0';
     return validacao;
 }
 
-//valida se os numeros da sewuencia recebida estao ente 0 e 9
+
+//Função que valida se os numeros da sewuencia recebida estao ente 0 e 9
 int validar_tentativa(char* guess, int tam_guess){
 
     int valido = 1;
@@ -101,10 +190,10 @@ int validar_tentativa(char* guess, int tam_guess){
 }
 
 
-
 int main(){
 
     int* sequencia;
+    int* meta_sequencia;
     char buffer[300];
 
     int pid;
@@ -112,6 +201,7 @@ int main(){
     int option = 1;
     struct sockaddr_in servidor;
 
+    //falgs que indicam a continuidade ou não da conexãoente cliente e servidor
     int flag = 0;
     int conexao = 0;
     
@@ -186,7 +276,6 @@ int main(){
         if (pid < 0){
             printf("Erro ao criar novo processo filho.\n");
             exit(1);
-
         }
 
         //novo processo filho criado
@@ -214,6 +303,7 @@ int main(){
                     
                     //definindo sequencia a ser adivinhada
                     sequencia = gerar_sequencia(tam);
+                    meta_sequencia = gerar_meta_sequencia(tam, sequencia);
 
                     send(new_socket, "-Digite sua primeira tentativa a seguir e após cada pista tente novamente. Lembre-se, há uma fortuna em jogo!\n", 112, 0);
                     tentativa = 0;
@@ -265,7 +355,7 @@ int main(){
                                 else{
                                     
                                     //validar e analisar tentativa
-                                    char* validacao = analisar_tentativa(guess, recv_count, sequencia, tam);
+                                    char* validacao = analisar_tentativa(guess, recv_count, sequencia, tam, meta_sequencia);
 
                                     //tentativa invalida
                                     if (validacao[0] == '-'){
@@ -303,10 +393,8 @@ int main(){
         //processo pai que apenas escuta por novas conexoes
         else{
             close(new_socket);
-        }
-        
+        } 
     }
-
     //fechando socket que escuta por solicitações de conexão, assim parando o servidor
     close(socket_id);
 
