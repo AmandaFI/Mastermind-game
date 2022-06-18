@@ -76,15 +76,10 @@ int main(){
   }
 
   //caso o usuário exceda as tentativas, o cliente será encerrado
-  if (tentativas == 5)
-  {
+  if (tentativas == 5){
     printf("\nNúmero máximo de tentativas excedido, não foi possível criar o socket\n");
     exit(1);
   }
-  
- 
-  
-
 
   __fpurge(stdin); //limpar buffer de leitura
 
@@ -102,10 +97,10 @@ int main(){
   if (socket_id == -1){
       printf("Erro na criação do socket.\n");
       exit(1);
-    }
+  }
   else{
       printf("Criação do socket com sucesso.\n");
-    }
+  }
 
   //Zera struct com as informações de conexão (limpar lixo de memória)
   bzero(&sock, sizeof(sock));
@@ -123,11 +118,11 @@ int main(){
       printf("Não foi possível conectar ao servidor.\n");
       close(socket_id);
       exit(1);
-    }
+  }
   else{
       printf("Conexão efetuada com sucesso.\n");
 
-    }
+  }
 
   while (fim == 0) {
 
@@ -137,15 +132,18 @@ int main(){
       printf("Erro ao receber mensagem. A conexão será encerrada");
       close(socket_id);
       exit(1);
-    } else if (recv_str[0]=='.') { //Se o primeiro caractere da resposta do servidor for "." será removido da string e a conexão será encerrada
+    } 
+    else if (recv_str[0]=='.') { //Se o primeiro caractere da resposta do servidor for "." será removido da string e a conexão será encerrada
       memmove(recv_str,recv_str+1,strlen(recv_str));
 			printf("\n%s\n",recv_str);
       close(socket_id);
       exit(1);
-    } else if (recv_str[0]=='-'){ //Se o primeiro caractere da resposta do servidor for "-" será removido da string
+    } 
+    else if (recv_str[0]=='-'){ //Se o primeiro caractere da resposta do servidor for "-" será removido da string
 			memmove(recv_str,recv_str+1,strlen(recv_str));
 			printf("\n%s\n",recv_str);
-		} else {
+		} 
+    else {
   
       if(strlen(recv_str) <= 4){ // Verifica se o servidor retornou algo além dos erros e acertos atuais
 
@@ -168,14 +166,10 @@ int main(){
         exit(1);
 
       }
-
-      
 		}
-
 
     scanf("%s",send_str);
     __fpurge(stdin);
-
 
     if ((aux = send(socket_id,send_str,sizeof(send_str),0)) == -1){
       printf("Erro ao enviar mensagem. A conexão será encerrada");
@@ -183,5 +177,4 @@ int main(){
       exit(1);
     }
   }
-
 }

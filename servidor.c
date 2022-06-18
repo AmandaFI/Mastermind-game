@@ -23,23 +23,23 @@ int* gerar_sequencia(int tam_sequencia){
     }
 
     //DEBUG MODE - MOSTRAR SEQUENCIA/SENHA ESCOLHIDA
-    printf("Senha:\n");
-    for (int i =0; i<tam_sequencia; i++){
-        printf("%d", sequencia[i]);
-    }
-    printf("\n");
+    // printf("Senha:\n");
+    // for (int i =0; i<tam_sequencia; i++){
+    //     printf("%d", sequencia[i]);
+    // }
+    // printf("\n");
 
     return sequencia;
 }
 
 
-//Função que gera um array informando a quantidade de vezes que cada digito aparece na senha
-//se houver repetições o indice 0 do array valerá 1, caso contrário valerá 0
-//a partir do indice 0, segue-se cada valor acompanhado pela quantidade de vezes que aparece na senha
-//para valores que se repetem, a informação válida de quantidade é a que acompanha a priemira vez que o valor aparece no array
-//Ex: senha = 7583, output da função = [0, 7, 1, 5, 1, 8, 1, 3, 1] --> nesse caso não há repetições e os números 7, 5, 8 e 3 aparecem somente uma vez
-//Ex: senha = 7573, output da funcao = [1, 7, 2, 5, 1, 7, 1, 3, 1] --> nesse caso o valor 7 aparece 2 vezes e os demais apenas 1 vez, a informação de 
-//quantidade válida do valor 7 é 2 pois é a que acompanha o priemiro registro do valor no array
+/*Função que gera um array informando a quantidade de vezes que cada digito aparece na senha
+se houver repetições o indice 0 do array valerá 1, caso contrário valerá 0
+a partir do indice 0, segue-se cada valor acompanhado pela quantidade de vezes que aparece na senha
+para valores que se repetem, a informação válida de quantidade é a que acompanha a priemira vez que o valor aparece no array
+Ex: senha = 7583, output da função = [0, 7, 1, 5, 1, 8, 1, 3, 1] --> nesse caso não há repetições e os números 7, 5, 8 e 3 aparecem somente uma vez
+Ex: senha = 7573, output da funcao = [1, 7, 2, 5, 1, 7, 1, 3, 1] --> nesse caso o valor 7 aparece 2 vezes e os demais apenas 1 vez, a informação de 
+quantidade válida do valor 7 é 2 pois é a que acompanha o priemiro registro do valor no array*/
 int* gerar_meta_sequencia(int tam_sequencia, int* sequencia){
 
     //tamanho do array de output
@@ -92,16 +92,18 @@ int* gerar_meta_sequencia(int tam_sequencia, int* sequencia){
 }
 
 
-//Funçaõ que valida a tentativa do usuario, retornando um array contendo quantos acertos, acertos parciais e erros o usuario cometeu
+//Função que analisa a tentativa do usuario, retornando um array contendo quantos acertos, acertos parciais e erros o usuario cometeu
 char* analisar_tentativa(char* guess, int tam_guess, int* sequencia, int tam_sequencia, int* meta_sequencia){
 
     char* validacao = malloc(sizeof(char)* 4);
     int meta_tam = 2 * tam_sequencia + 1;
     int* meta_sequencia_copy = malloc(sizeof(int)* meta_tam);
 
+    //inicializando array que conterá as analise da tentativa do usuario
     for (int i = 0; i < 3; i++){
         validacao[i] = '-';
     }
+    //copiando valores de meta_sequencia para meta_sequencia_copy
     for (int i = 0; i < meta_tam; i++){
         meta_sequencia_copy[i] = meta_sequencia[i];
     }
@@ -126,10 +128,10 @@ char* analisar_tentativa(char* guess, int tam_guess, int* sequencia, int tam_seq
         for (int i = 0; i < tam_sequencia; i++){
             if ((guess[i] - '0') == sequencia[i]){
                 certo_certo++;
-                //atualizando a quantidade de vezes que ele apareceu na tentativa em relaçaõ a quantidade de vezes que ele existe na senha para que o valor
-                //não seja contando como certo_certo e como certo_errado. Deesa forma, se o numero 3 por exemplo aparecer apenas 1 vez na senha e a tentativa
-                //do usuário for igual a 3333, o feedback será 103 ao inves de 130 pois o numero existe apenas 1 vez na senha e assim as outras vezes que
-                //ele apareceu na tentativa do usuario constituem valores errados
+                /*atualizando a quantidade de vezes que ele apareceu na tentativa em relaçaõ a quantidade de vezes que ele existe na senha para que o valor
+                não seja contando como certo_certo e como certo_errado. Deesa forma, se o numero 3 por exemplo aparecer apenas 1 vez na senha e a tentativa
+                do usuário for igual a 3333, o feedback será 103 ao inves de 130 pois o numero existe apenas 1 vez na senha e assim as outras vezes que
+                ele apareceu na tentativa do usuario constituem valores errados*/
                 for(int m = 1; m < meta_tam - 1; m = m + 2){
                     if ((guess[i] - '0') == meta_sequencia_copy[m]){
                         if(meta_sequencia_copy[m + 1] > 0){
@@ -201,7 +203,7 @@ int main(){
     int option = 1;
     struct sockaddr_in servidor;
 
-    //falgs que indicam a continuidade ou não da conexãoente cliente e servidor
+    //falgs que indicam a continuidade ou não da conexão entre cliente e servidor
     int flag = 0;
     int conexao = 0;
     
@@ -216,6 +218,12 @@ int main(){
     //quantidade maxima de tentativas que o usuario tem para acertar
     int max_tentativa = 12;
 
+    printf("  _                _    _____ _      _    \n");
+    printf(" | |              | |  |  __ (_)    | |   \n");
+    printf(" | |     ___   ___| | _| |__) _  ___| | __\n");
+    printf(" | |    / _ \\ / __| |/ |  ___| |/ __| |/ /\n");
+    printf(" | |___| (_) | (__|   <| |   | | (__|   < \n");
+    printf(" |______\\___/ \\___|_|\\_|_|   |_|\\___|_|\\_|\n\n");
 
     //criação do socket
     socket_id = socket(AF_INET, SOCK_STREAM, 0);
@@ -246,7 +254,6 @@ int main(){
         printf("Erro ao sincronizar servidor e porta.\n");
         exit(1);
     }
-
 
     //aceitando conexão solicitada por um cliente, retornará um novo socket para se comunicar com aquele cliente em especifico
     //e preenchera uma struct com as informaçoes do cliente
@@ -285,15 +292,15 @@ int main(){
             close(socket_id);
             
 
-            //enviando messagem de boas vindas e instruçaõ do jogo ao cliente
+            //enviando messagem de boas vindas e instrução do jogo ao cliente
             send(new_socket, "-\nBem vindo ao Lockpick!\nUm programdor distraído esqueceu a chave de acesso de sua carteira de criptomoedas. Essa informação veio a público e agora todos podem tentar adivinhá-la.\nA carteira permite que você realize 12 tentativas para tentar acertar uma senha de 4 dígitos composta pelos valores de 0 a 9.\nA cada tentativa, uma pista lhe será fornecida. Após 12 tentativas a carteira será bloqueada e todo seu conteúdo será perdido para sempre. Vai aceitar o desafio e tentar acertar a chave de acesso ?\nDigite 'start' para iniciar ou 'quit' para sair.\n", 565, 0);
 
             //while força o usuario a iniciar ou encerrar o jogo, qualquer outro comando será invalido
             while(flag != 1){
                 recv(new_socket, buffer, 300, 0);
 
-                //se a mesnagem recebida for igual a quit\n o programa é encerrado
-                if(!strcmp(buffer, "quit")){            //o /r é necessário para testar pelo telnet, talvez por clienete possa ser somente /n
+                //se a mensagem recebida for igual a quit o programa é encerrado
+                if(!strcmp(buffer, "quit")){
                     send(new_socket, ".Jogo encerrado.\n", 17, 0);
                     flag = 1;
                     conexao = 1;
@@ -321,7 +328,7 @@ int main(){
                             //recebe tentativa do usuario
                             recv(new_socket, buffer, 300, 0);
                             
-                            //se a mesnagem recebida for igual a quit\n o programa é encerrado
+                            //se a mesnagem recebida for igual a quit o programa é encerrado
                             if(!strcmp(buffer, "quit")){
                                 send(new_socket, ".Jogo encerrado.\n", 17, 0);
                                 flag = 1;
