@@ -8,11 +8,11 @@ The server implemented in the server.c file uses the TCP/IP communication protoc
 
 ## Client details
 
-The only important feature present in the client implemented in the client.c file is the need to inform the IP adress and the port in which the server is runnnig. The IP adressmust be informed in the Ipv4 format and the port is the 5001 as mentioned above.
+The only important feature present in the client implemented in the client.c file is the need to inform the IP adress and the port in which the server is runnnig. The IP adress must be informed in the Ipv4 format and the port is the 5001 as mentioned above.
 
 ## Game rules
 
-The user must guess a password constitued by a sequence of 4 digits from 0 to 9 (repetitions are allowed). To acomplish this task the user will have 12 attempts and after each attempt the server will provide a clue based on the submited guess. The clue informs how many digits of the guess where correct digits in the correct position, how many where correct digits in a incorrect position and how many digits were incorrect and are not present in the password to be guessed. To start the game the user need to type in the 'start' command and to exit the game at any time the user just need to typoe the 'quit' command.
+The user must guess a password constitued by a sequence of 4 digits from 0 to 9 (repetitions are allowed). To acomplish this task the user will have 12 attempts and after each attempt the server will provide a clue based on the submited guess. The clue informs how many digits of the guess were correct digits in the correct position, how many were correct digits in a incorrect position and how many digits were incorrect and are not present in the password to be guessed. To start the game the user need to type the 'start' command and to exit the game at any time the user just need to type the 'quit' command.
 
 ## Getting Started
 
